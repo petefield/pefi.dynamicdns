@@ -4,7 +4,10 @@ Console.WriteLine($"{DateTime.UtcNow}: PeFi.Dynamic.DNS Started");
 
 
 var client = new Client();
-client.AddCredentials(new OAuth2Credentials("dnsimple_a_D8HUCvbQYCorXSAa1ebJuMtWUeZGR8K3"));
+
+var token = Environment.GetEnvironmentVariable("dnsimple_token");
+
+client.AddCredentials(new OAuth2Credentials(token));
 
 IPAddressInfo? previousIPAddress = null;
 
