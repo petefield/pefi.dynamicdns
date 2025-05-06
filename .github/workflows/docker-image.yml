@@ -1,0 +1,26 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+        
+    - name: Set image name
+      id: vars
+      run: echo "IMAGE=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
+    
+    - name: Build Docker image
+      run: |
+        cd pefi.dynamicdns
+        docker build -t $IMAGE:latest .
