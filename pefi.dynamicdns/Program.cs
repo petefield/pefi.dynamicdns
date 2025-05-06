@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using dnsimple;
-Console.WriteLine($"{DateTime.UtcNow}: PeFi Dynamic DNS Started");
+Console.WriteLine($"{DateTime.UtcNow}: PeFi.Dynamic.DNS Started");
 
 
 var client = new Client();
