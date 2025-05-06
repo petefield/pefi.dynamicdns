@@ -17,13 +17,13 @@ while (true)
 
     if(previousIPAddress != currentIPAddress)
     {
-        Console.WriteLine($"{DateTime.UtcNow}: IP Address - Changed - {{ 'PreviousIpAddress': '{previousIPAddress?.Ip ?? "NOT SET"}',  'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
+        Console.WriteLine($"{DateTime.UtcNow}: IP Address - Change - {{ 'PreviousIpAddress': '{previousIPAddress?.Ip ?? "NOT SET"}',  'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
         DNSUpdater.UpdateDNSRecord("pefi.co.uk", "home", currentIPAddress);
         previousIPAddress = currentIPAddress;
     }
     else
     {
-        Console.WriteLine($"{DateTime.UtcNow}: IP Address - No Change - {{ 'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
+        Console.WriteLine($"{DateTime.UtcNow}: IP Address - Static - {{ 'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
     }
 
     // Wait for 5 minutes before checking again
