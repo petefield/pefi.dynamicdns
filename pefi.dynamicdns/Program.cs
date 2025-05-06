@@ -27,6 +27,6 @@ while (true)
     }
 
     // Wait for 5 minutes before checking again
-    await Task.Delay(TimeSpan.FromMinutes(5));
+    await Task.Delay(TimeSpan.FromMinutes(1));
 }
 
