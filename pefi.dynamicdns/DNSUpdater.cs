@@ -3,7 +3,7 @@ using dnsimple;
 
 public static class DNSUpdater {
 
-    public static async Task UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo)
+    public static void UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo)
     {
         var client = new Client();
         client.AddCredentials(new OAuth2Credentials("dnsimple_a_D8HUCvbQYCorXSAa1ebJuMtWUeZGR8K3"));

@@ -15,7 +15,7 @@ while (true)
     if(previousIPAddress != currentIPAddress)
     {
         Console.WriteLine($"{DateTime.UtcNow}: IP Address - Changed -   {{ 'PreviousIpAddress': '{previousIPAddress?.Ip ?? "NOT SET"}',  'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
-        await DNSUpdater.UpdateDNSRecord("pefi.co.uk", "home", currentIPAddress);
+        DNSUpdater.UpdateDNSRecord("pefi.co.uk", "home", currentIPAddress);
         previousIPAddress = currentIPAddress;
     }
     else

@@ -6,7 +6,7 @@ public static class IpAddressLookup
     public static async Task<IPAddressInfo> GetPublicIpAddress()
     {
         using var httpClient = new HttpClient();
-        var IpAddressResponse = await httpClient.GetFromJsonAsync<IPAddressInfo>("https://api64.ipify.org?format=json");
+        var IpAddressResponse = await httpClient.GetFromJsonAsync<IPAddressInfo>("https://api4.ipify.org?format=json");
 
         if (IpAddressResponse == null)
         {
