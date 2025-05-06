@@ -9,7 +9,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["pefi.dynamicdns.csproj", "pefi.dynamicdns/"]
 RUN dotnet restore "./pefi.dynamicdns/./pefi.dynamicdns.csproj"
-COPY . .
+COPY . pefi.dynamicdns/
 WORKDIR "/src/pefi.dynamicdns"
 RUN dotnet build "./pefi.dynamicdns.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
