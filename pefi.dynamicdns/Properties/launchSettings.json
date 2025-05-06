@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "pefi.dynamicdns": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
