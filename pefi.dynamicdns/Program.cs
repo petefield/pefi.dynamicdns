@@ -1,32 +1,20 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using dnsimple;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using pefi.Rabbit;
+using PeFi.Proxy;
+using pefi.observability;
+
 Console.WriteLine($"{DateTime.UtcNow}: PeFi.Dynamic.DNS Started");
 
+var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddHostedService<ScheduledIpCheck>();
+builder.Services.AddHostedService<EventListener>();
+builder.Services.AddPefiObservability("http://192.168.0.5:4317");
 
-var client = new Client();
+builder.Services.AddSingleton<IMessageBroker>(sp => new MessageBroker("192.168.0.5", "username", "password"));
+var host = builder.Build();
+await host.RunAsync();
 
-var token = Environment.GetEnvironmentVariable("dnsimple_token");
-
-client.AddCredentials(new OAuth2Credentials(token));
-
-IPAddressInfo? previousIPAddress = null;
-
-while (true)
-{
-    var currentIPAddress = await IpAddressLookup.GetPublicIpAddress();
-
-    if(previousIPAddress != currentIPAddress)
-    {
-        Console.WriteLine($"{DateTime.UtcNow}: IP Address - Changed - {{ 'PreviousIpAddress': '{previousIPAddress?.Ip ?? "NOT SET"}',  'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
-        DNSUpdater.UpdateDNSRecord("pefi.co.uk", "home", currentIPAddress);
-        previousIPAddress = currentIPAddress;
-    }
-    else
-    {
-        Console.WriteLine($"{DateTime.UtcNow}: IP Address - Static - {{ 'CurrentIpAddress': '{currentIPAddress.Ip}' }}");
-    }
-
-    // Wait for 5 minutes before checking again
-    await Task.Delay(TimeSpan.FromMinutes(2));
-}
+Console.ReadLine();
 
