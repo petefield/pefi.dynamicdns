@@ -32,7 +32,7 @@ jobs:
     - name: Build
       uses: docker/build-push-action@v6
       with:
-        context: ./pefi/dynamicdns/.
+        context: ./pefi.dynamicdns
         tags: ghcr.io/${{ github.repository }}
         secrets: |
             "github_token=${{ secrets.GITHUB_TOKEN }}"
