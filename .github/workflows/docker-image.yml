@@ -44,6 +44,8 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Push Docker image
-      run: |
-       docker push $IMAGE:latest
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        tags: ghcr.io/${{ github.repository }}
+        push: true
