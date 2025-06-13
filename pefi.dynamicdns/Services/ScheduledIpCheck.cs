@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using pefi.dynamicdns;
+using pefi.dynamicdns.Infrastructure;
 
 public class ScheduledIpCheck(IDNSClient dnsClient, ILogger<ScheduledIpCheck> logger) : BackgroundService
 {

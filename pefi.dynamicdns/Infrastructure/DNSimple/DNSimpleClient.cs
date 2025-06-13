@@ -1,16 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using dnsimple;
 using dnsimple.Services;
+using Microsoft.Extensions.Logging;
 
-namespace pefi.dynamicdns;
+namespace pefi.dynamicdns.Infrastructure.DNSimple;
 
 public class DNSimpleClient : IDNSClient
 {
     private readonly Client client;
     private readonly string zoneId;
     private readonly long accountId;
+    private readonly ILogger<DNSimpleClient> logger;
 
-    public DNSimpleClient(string domain)
+    public DNSimpleClient(string domain, ILogger<DNSimpleClient> logger)
     {
         client = new Client();
         client.AddCredentials(new OAuth2Credentials("dnsimple_a_D8HUCvbQYCorXSAa1ebJuMtWUeZGR8K3"));
@@ -18,6 +20,7 @@ public class DNSimpleClient : IDNSClient
         accountId = account.Id;
         var zone = client.Zones.ListZones(accountId).Data.Single(x => x.Name == domain);
         zoneId = zone.Id.ToString();
+        this.logger = logger;
     }
 
     public void UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo)
@@ -40,4 +43,22 @@ public class DNSimpleClient : IDNSClient
         });
     }
 
+    public void DeleteDnsRecord(string host)
+    {
+        logger.LogInformation("Delete zone record :{host}", host);
+
+        try
+        {
+            var record = client.Zones.ListZoneRecords(accountId, zoneId)
+                .Data.Single(record => record.Name == host);
+
+            client.Zones.DeleteZoneRecord(accountId, zoneId, record.Id);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Delete zone record :{host}", host);
+        }
+
+
+    }
 }
