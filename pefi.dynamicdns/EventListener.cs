@@ -2,6 +2,7 @@ using dnsimple.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pefi.dynamicdns.Infrastructure;
+using pefi.dynamicdns.Models;
 using pefi.dynamicdns.Services;
 using pefi.Rabbit;
 
@@ -22,26 +23,35 @@ public class EventListener(ILogger<EventListener> logger,
 
         await _topic.Subscribe("events.service.created", async (key, message) => {
             var svc = System.Text.Json.JsonSerializer.Deserialize<ServiceCreatedMessage>(message);
-            await UpdateDNS(svc.ServiceName);
+            await UpdateDNS(svc.Name);
         });
 
         await _topic.Subscribe("events.service.deleted", async (key, message) => {
-            var svc = System.Text.Json.JsonSerializer.Deserialize<ServiceCreatedMessage>(message);
-            await DeleteDNs(svc.ServiceName);
+            var svc = System.Text.Json.JsonSerializer.Deserialize<ServiceDeletedMessage>(message);
+            await DeleteDNs(svc);
         });
     }
 
-    private async Task DeleteDNs(string serviceName)
+    private async Task DeleteDNs(ServiceDeletedMessage svgMessage )
     {
-
-        var service = await serviceManagerClient.Get_Service_By_NameAsync(serviceName);
-        logger.LogInformation("Delete DNS {serviceName}", service.serviceName);
-
-        if (service.hostName is not null)
+        try
         {
-            DNSClient.DeleteDnsRecord(service.hostName);
-            logger.LogInformation("Deleted DNS {service.hostName}", service.hostName);
+            var service = svgMessage.Service;
+
+            logger.LogInformation("Delete DNS {serviceName}", service.ServiceName);
+
+            if (service.HostName is not null)
+            {
+                DNSClient.DeleteDnsRecord(service.HostName);
+                logger.LogInformation("Deleted DNS {service.hostName}", service.HostName);
+            }
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Deleting DNS {service}", svgMessage);
+            throw;
+        }
+
     }
 
     private async Task UpdateDNS(string serviceName)
