@@ -18,7 +18,7 @@ RUN dotnet build "./pefi.dynamicdns.csproj" -c $BUILD_CONFIGURATION -o /app/buil
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./pefi.dynamicdns.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./pefi.dynamicdns.csproj" -c $BUILD_CONFIGURATION  -a '$TARGETARCH' -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
