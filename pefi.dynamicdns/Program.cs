@@ -26,7 +26,11 @@ builder.Services.AddPefiObservability("http://192.168.0.42:4317", t => t
 
 builder.Logging.AddPefiLogging();
 
-builder.Services.AddHttpClient<ServiceManagerClient>(c => c.BaseAddress = new Uri("http://192.168.1.86:5550"));
+builder.Services.AddHttpClient<ServiceManagerClient>((sp, c) => {
+    var baseAddress = builder.Configuration.GetSection("ServiceManager").GetValue<string>("baseurl") ?? "";
+    c.BaseAddress = new Uri(baseAddress);
+});
+
 
 builder.Services.AddPeFiMessaging(options => {
     options.Username = builder.Configuration.GetSection("Messaging").GetValue<string>("username") ?? "";
