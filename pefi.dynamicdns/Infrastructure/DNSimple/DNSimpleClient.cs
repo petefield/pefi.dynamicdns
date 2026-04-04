@@ -56,7 +56,8 @@ public class DNSimpleClient : IDNSClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Delete zone record :{host}", host);
+            logger.LogError(ex, "Failed to delete zone record :{host}", host);
+            throw;
         }
 
 

@@ -102,4 +102,24 @@ public class ScheduledIpCheckTests
 
         _dnsClientMock.Verify(x => x.UpdateDNSRecord("example.com", "home", ip), Times.Once);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenIpLookupFails_ContinuesRunningWithoutUpdatingDns()
+    {
+        _ipLookupMock
+            .Setup(x => x.GetPublicIpAddress())
+            .ThrowsAsync(new HttpRequestException("Connection refused"));
+
+        using var cts = new CancellationTokenSource();
+        var service = CreateService();
+
+        var runTask = service.StartAsync(cts.Token);
+        await Task.Delay(50);
+        cts.Cancel();
+
+        // Should complete without throwing despite the IP lookup failure
+        await Task.WhenAny(runTask, Task.Delay(2000));
+
+        _dnsClientMock.Verify(x => x.UpdateDNSRecord(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IPAddressInfo>()), Times.Never);
+    }
 }

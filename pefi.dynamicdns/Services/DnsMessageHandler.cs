@@ -20,11 +20,17 @@ public class DnsMessageHandler(
         {
             var service = await serviceManagerClient.GetServiceByNameAsync(serviceName);
 
+            if (service.HostName is null)
+            {
+                logger.LogWarning("Service '{serviceName}' has no hostname configured, skipping DNS record creation.", serviceName);
+                return;
+            }
+
             logger.LogInformation("Update DNS {serviceName}", service.ServiceName);
             logger.LogInformation("Adding CNAME '{serviceName}' to zone '{domain}' with content '{homeHostname}.{domain}'",
                 serviceName, _dnsSettings.Domain, _dnsSettings.HomeHostname, _dnsSettings.Domain);
 
-            dnsClient.AddCNAMERecord(_dnsSettings.Domain, $"{service.HostName}", _dnsSettings.HomeHostname);
+            dnsClient.AddCNAMERecord(_dnsSettings.Domain, service.HostName, _dnsSettings.HomeHostname);
         }
         catch (Exception ex)
         {

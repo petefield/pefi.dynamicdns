@@ -75,6 +75,20 @@ public class DnsMessageHandlerTests
     }
 
     [Fact]
+    public async Task HandleServiceCreated_WhenHostNameIsNull_DoesNotCallAddCNAMERecord()
+    {
+        var serviceName = "myservice";
+        _serviceManagerClientMock
+            .Setup(x => x.GetServiceByNameAsync(serviceName))
+            .ReturnsAsync(new ServiceInfo(serviceName, null));
+
+        var handler = CreateHandler();
+        await handler.HandleServiceCreated(serviceName);
+
+        _dnsClientMock.Verify(x => x.AddCNAMERecord(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
     public async Task HandleServiceDeleted_PropagatesException_WhenDnsClientFails()
     {
         var service = new Service("myservice", "myservice", null, null, null);

@@ -35,7 +35,10 @@ builder.Services.AddHttpClient<ServiceManagerClient>((sp, c) => {
 
 builder.Services.AddTransient<IServiceManagerClient, ServiceManagerClientAdapter>();
 
-builder.Services.AddHttpClient<IIpAddressLookup, IpAddressLookup>();
+builder.Services.AddHttpClient<IIpAddressLookup, IpAddressLookup>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddTransient<IDnsMessageHandler, DnsMessageHandler>();
 
@@ -60,6 +63,4 @@ builder.Services.AddSingleton<IDNSClient>(sp => {
 });
 var host = builder.Build();
 await host.RunAsync();
-
-Console.ReadLine();
 
