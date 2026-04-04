@@ -5,6 +5,6 @@ namespace pefi.dynamicdns.Infrastructure
     {
         void AddCNAMERecord(string domain, string host, string content);
         void UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo);
-        void DeleteDnsRecord(string domain);
+        void DeleteDnsRecord(string host);
     }
 }

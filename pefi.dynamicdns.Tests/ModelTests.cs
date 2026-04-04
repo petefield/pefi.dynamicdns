@@ -34,6 +34,13 @@ public class ModelTests
     }
 
     [Fact]
+    public void DnsSettings_CheckIntervalMinutes_DefaultsToTwo()
+    {
+        var settings = new DnsSettings();
+        Assert.Equal(2, settings.CheckIntervalMinutes);
+    }
+
+    [Fact]
     public void DnsSettings_PropertiesAreAssignable()
     {
         var settings = new DnsSettings { Domain = "example.com", HomeHostname = "home" };
