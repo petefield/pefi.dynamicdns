@@ -3,8 +3,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using pefi.dynamicdns;
 using pefi.dynamicdns.Infrastructure;
+using pefi.dynamicdns.Services;
 
-public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOptions, ILogger<ScheduledIpCheck> logger) : BackgroundService
+public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOptions, IIpAddressLookup ipAddressLookup, ILogger<ScheduledIpCheck> logger) : BackgroundService
 {
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -15,7 +16,7 @@ public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOpt
         while (!stoppingToken.IsCancellationRequested)
         {
 
-            var currentIPAddress = await IpAddressLookup.GetPublicIpAddress();
+            var currentIPAddress = await ipAddressLookup.GetPublicIpAddress();
 
             if (previousIPAddress != currentIPAddress)
             {
@@ -31,7 +32,7 @@ public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOpt
                 logger.LogInformation("IP address current address '{CurrentIpAddress}' has not changed", currentIPAddress.Ip);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(2));
+            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
         }
     }
 }
