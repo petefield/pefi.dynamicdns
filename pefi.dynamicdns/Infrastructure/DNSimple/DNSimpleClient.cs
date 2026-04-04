@@ -12,10 +12,10 @@ public class DNSimpleClient : IDNSClient
     private readonly long accountId;
     private readonly ILogger<DNSimpleClient> logger;
 
-    public DNSimpleClient(string domain, ILogger<DNSimpleClient> logger)
+    public DNSimpleClient(string domain, string apiToken, ILogger<DNSimpleClient> logger)
     {
         client = new Client();
-        client.AddCredentials(new OAuth2Credentials("dnsimple_a_D8HUCvbQYCorXSAa1ebJuMtWUeZGR8K3"));
+        client.AddCredentials(new OAuth2Credentials(apiToken));
         var account = client.Identity.Whoami().Data.Account;
         accountId = account.Id;
         var zone = client.Zones.ListZones(accountId).Data.Single(x => x.Name == domain);

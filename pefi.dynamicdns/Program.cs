@@ -47,7 +47,11 @@ builder.Services.Configure<DnsSettings>(builder.Configuration.GetSection("DNS"))
 
 builder.Services.AddSingleton<IDNSClient>(sp => {
     var dnsSettings = sp.GetRequiredService<IOptions<DnsSettings>>().Value;
-    return new DNSimpleClient(dnsSettings.Domain, sp.GetRequiredService<ILogger<DNSimpleClient>>());
+    if (string.IsNullOrWhiteSpace(dnsSettings.Domain))
+        throw new InvalidOperationException("DNS:Domain configuration is required.");
+    if (string.IsNullOrWhiteSpace(dnsSettings.ApiToken))
+        throw new InvalidOperationException("DNS:ApiToken configuration is required.");
+    return new DNSimpleClient(dnsSettings.Domain, dnsSettings.ApiToken, sp.GetRequiredService<ILogger<DNSimpleClient>>());
 });
 var host = builder.Build();
 await host.RunAsync();
