@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 using pefi;
 using pefi.dynamicdns;
@@ -21,7 +22,8 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddHostedService<ScheduledIpCheck>();
 builder.Services.AddHostedService<EventListener>();
 
-builder.Services.AddPefiObservability("http://192.168.0.42:4317", t => t
+var collectorUrl = builder.Configuration.GetSection("Observability").GetValue<string>("CollectorUrl") ?? "";
+builder.Services.AddPefiObservability(collectorUrl, t => t
     .AddRabbitMQInstrumentation());
 
 builder.Logging.AddPefiLogging();
@@ -41,11 +43,16 @@ builder.Services.AddPeFiMessaging(options => {
 
 
 
-var dnsimpleConfig = builder.Configuration.GetSection("DNSimple");
-builder.Services.AddSingleton<IDNSClient>(sp => new DNSimpleClient(
-    dnsimpleConfig.GetValue<string>("Domain") ?? "pefi.co.uk",
-    dnsimpleConfig.GetValue<string>("ApiToken") ?? throw new InvalidOperationException("DNSimple:ApiToken configuration is required."),
-    sp.GetRequiredService<ILogger<DNSimpleClient>>()));
+builder.Services.Configure<DnsSettings>(builder.Configuration.GetSection("DNS"));
+
+builder.Services.AddSingleton<IDNSClient>(sp => {
+    var dnsSettings = sp.GetRequiredService<IOptions<DnsSettings>>().Value;
+    if (string.IsNullOrWhiteSpace(dnsSettings.Domain))
+        throw new InvalidOperationException("DNS:Domain configuration is required.");
+    if (string.IsNullOrWhiteSpace(dnsSettings.ApiToken))
+        throw new InvalidOperationException("DNS:ApiToken configuration is required.");
+    return new DNSimpleClient(dnsSettings.Domain, dnsSettings.ApiToken, sp.GetRequiredService<ILogger<DNSimpleClient>>());
+});
 var host = builder.Build();
 await host.RunAsync();
 

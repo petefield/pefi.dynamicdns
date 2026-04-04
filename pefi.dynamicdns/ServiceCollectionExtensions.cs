@@ -26,7 +26,7 @@ namespace pefi
 
                 var log = sp.GetRequiredService<ILogger<Program>>();
 
-                log.LogInformation($"Messaging : {options.Username} {options.Password}, {options.Address}");
+                log.LogInformation("Messaging : {Username}, {Address}", options.Username, options.Address);
 
                 return new MessageBroker(options.Address, options.Username, options.Password);
 

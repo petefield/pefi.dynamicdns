@@ -1,6 +1,7 @@
 using dnsimple.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using pefi.dynamicdns.Infrastructure;
 using pefi.dynamicdns.Models;
 using pefi.dynamicdns.Services;
@@ -10,9 +11,11 @@ namespace pefi.dynamicdns;
 
 public class EventListener(ILogger<EventListener> logger,
     IMessageBroker messageBroker, 
-    IDNSClient DNSClient, ServiceManagerClient serviceManagerClient) : BackgroundService
+    IDNSClient DNSClient, ServiceManagerClient serviceManagerClient,
+    IOptions<DnsSettings> dnsOptions) : BackgroundService
 {
     private ITopic? _topic;
+    private readonly DnsSettings _dnsSettings = dnsOptions.Value;
 
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -63,8 +66,8 @@ public class EventListener(ILogger<EventListener> logger,
 
             logger.LogInformation("Update DNS {serviceName}", service.serviceName);
 
-            logger.LogInformation("Adding CNAME '{name}' to zone 'pefi.co.uk' with content 'home.pefi.co.uk'", serviceName);
-            DNSClient.AddCNAMERecord("pefi.co.uk", $"{service.hostName}", "home");
+            logger.LogInformation("Adding CNAME '{serviceName}' to zone '{domain}' with content '{homeHostname}.{domain}'", serviceName, _dnsSettings.Domain, _dnsSettings.HomeHostname, _dnsSettings.Domain);
+            DNSClient.AddCNAMERecord(_dnsSettings.Domain, $"{service.hostName}", _dnsSettings.HomeHostname);
         }
         catch (Exception ex)
         {
