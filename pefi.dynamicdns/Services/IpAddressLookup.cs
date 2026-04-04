@@ -1,18 +1,19 @@
-﻿// See https://aka.ms/new-console-template for more information
 using System.Net.Http.Json;
+using pefi.dynamicdns.Services;
 
-public static class IpAddressLookup
+public class IpAddressLookup(HttpClient httpClient) : IIpAddressLookup
 {
-    public static async Task<IPAddressInfo> GetPublicIpAddress()
-    {
-        using var httpClient = new HttpClient();
-        var IpAddressResponse = await httpClient.GetFromJsonAsync<IPAddressInfo>("https://api4.ipify.org?format=json");
+    private const string IpifyUrl = "https://api4.ipify.org?format=json";
 
-        if (IpAddressResponse == null)
+    public async Task<IPAddressInfo> GetPublicIpAddress()
+    {
+        var ipAddressResponse = await httpClient.GetFromJsonAsync<IPAddressInfo>(IpifyUrl);
+
+        if (ipAddressResponse == null)
         {
-            throw new Exception("Failed to retrieve IP address");
+            throw new InvalidOperationException("Failed to retrieve IP address from ipify.");
         }
 
-        return IpAddressResponse;
+        return ipAddressResponse;
     }
 }

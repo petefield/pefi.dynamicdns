@@ -9,6 +9,35 @@ on:
 
 jobs:
 
+  test:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore pefi.dynamicdns.sln
+
+    - name: Build
+      run: dotnet build pefi.dynamicdns.sln --no-restore -c Release
+
+    - name: Run tests
+      run: dotnet test pefi.dynamicdns.Tests/pefi.dynamicdns.Tests.csproj --no-build -c Release --verbosity normal
+
   build:
 
     runs-on: ubuntu-latest

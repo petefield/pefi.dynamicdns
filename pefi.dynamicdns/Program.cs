@@ -33,6 +33,11 @@ builder.Services.AddHttpClient<ServiceManagerClient>((sp, c) => {
     c.BaseAddress = new Uri(baseAddress);
 });
 
+builder.Services.AddTransient<IServiceManagerClient, ServiceManagerClientAdapter>();
+
+builder.Services.AddHttpClient<IIpAddressLookup, IpAddressLookup>();
+
+builder.Services.AddTransient<IDnsMessageHandler, DnsMessageHandler>();
 
 builder.Services.AddPeFiMessaging(options => {
     options.Username = builder.Configuration.GetSection("Messaging").GetValue<string>("username") ?? "";

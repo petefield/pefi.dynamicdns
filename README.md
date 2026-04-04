@@ -101,9 +101,37 @@ docker run \
   ghcr.io/petefield/pefi.dynamicdns:latest
 ```
 
+## Running Tests
+
+Unit tests are located in the `pefi.dynamicdns.Tests` project. They require access to the private NuGet packages, so you must configure the GitHub Packages source before running them.
+
+```bash
+# Add the private NuGet source (first time only)
+dotnet nuget add source \
+  --username <github_username> \
+  --password <github_token> \
+  --store-password-in-clear-text \
+  --name petefield \
+  "https://nuget.pkg.github.com/petefield/index.json"
+
+# Run all tests
+dotnet test pefi.dynamicdns.Tests/pefi.dynamicdns.Tests.csproj
+```
+
+Tests cover:
+
+| Test Class | What it Tests |
+|------------|---------------|
+| `ScheduledIpCheckTests` | IP change detection, DNS update triggering, cancellation handling |
+| `IpAddressLookupTests` | HTTP response parsing, error handling |
+| `DnsMessageHandlerTests` | CNAME record creation on service created, DNS deletion on service deleted |
+| `ModelTests` | Data model construction and equality |
+
 ## CI/CD
 
-The repository includes a GitHub Actions workflow that automatically builds and publishes a multi-platform Docker image (`linux/amd64` and `linux/arm64`) to the GitHub Container Registry on every push to `main`.
+The repository includes a GitHub Actions workflow that:
+1. Builds and runs all unit tests on every push and pull request
+2. Builds and publishes a multi-platform Docker image (`linux/amd64` and `linux/arm64`) to the GitHub Container Registry on every push to `main`.
 
 ## License
 
