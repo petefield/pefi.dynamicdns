@@ -1,13 +1,16 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using pefi.dynamicdns;
 using pefi.dynamicdns.Infrastructure;
 
-public class ScheduledIpCheck(IDNSClient dnsClient, ILogger<ScheduledIpCheck> logger) : BackgroundService
+public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOptions, ILogger<ScheduledIpCheck> logger) : BackgroundService
 {
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         IPAddressInfo? previousIPAddress = null;
+        var dnsSettings = dnsOptions.Value;
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -20,7 +23,7 @@ public class ScheduledIpCheck(IDNSClient dnsClient, ILogger<ScheduledIpCheck> lo
 
 
                 logger.LogInformation("IP address changed from '{oldIpAddress}' to '{CurrentIpAddress}'", previousIPAddressValue, currentIPAddress.Ip);
-                dnsClient.UpdateDNSRecord("pefi.co.uk", "home", currentIPAddress);
+                dnsClient.UpdateDNSRecord(dnsSettings.Domain, dnsSettings.HomeHostname, currentIPAddress);
                 previousIPAddress = currentIPAddress;
             }
             else

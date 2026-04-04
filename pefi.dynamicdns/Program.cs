@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 using pefi;
 using pefi.dynamicdns;
@@ -21,7 +22,8 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddHostedService<ScheduledIpCheck>();
 builder.Services.AddHostedService<EventListener>();
 
-builder.Services.AddPefiObservability("http://192.168.0.42:4317", t => t
+var collectorUrl = builder.Configuration.GetSection("Observability").GetValue<string>("CollectorUrl") ?? "";
+builder.Services.AddPefiObservability(collectorUrl, t => t
     .AddRabbitMQInstrumentation());
 
 builder.Logging.AddPefiLogging();
@@ -41,7 +43,12 @@ builder.Services.AddPeFiMessaging(options => {
 
 
 
-builder.Services.AddSingleton<IDNSClient>(sp => new DNSimpleClient("pefi.co.uk", sp.GetRequiredService<ILogger<DNSimpleClient>>()));
+builder.Services.Configure<DnsSettings>(builder.Configuration.GetSection("DNS"));
+
+builder.Services.AddSingleton<IDNSClient>(sp => {
+    var dnsSettings = sp.GetRequiredService<IOptions<DnsSettings>>().Value;
+    return new DNSimpleClient(dnsSettings.Domain, sp.GetRequiredService<ILogger<DNSimpleClient>>());
+});
 var host = builder.Build();
 await host.RunAsync();
 
