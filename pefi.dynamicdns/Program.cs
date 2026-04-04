@@ -41,7 +41,11 @@ builder.Services.AddPeFiMessaging(options => {
 
 
 
-builder.Services.AddSingleton<IDNSClient>(sp => new DNSimpleClient("pefi.co.uk", sp.GetRequiredService<ILogger<DNSimpleClient>>()));
+var dnsimpleConfig = builder.Configuration.GetSection("DNSimple");
+builder.Services.AddSingleton<IDNSClient>(sp => new DNSimpleClient(
+    dnsimpleConfig.GetValue<string>("Domain") ?? "pefi.co.uk",
+    dnsimpleConfig.GetValue<string>("ApiToken") ?? throw new InvalidOperationException("DNSimple:ApiToken configuration is required."),
+    sp.GetRequiredService<ILogger<DNSimpleClient>>()));
 var host = builder.Build();
 await host.RunAsync();
 
