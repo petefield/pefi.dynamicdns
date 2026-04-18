@@ -16,7 +16,7 @@ public class DnsMessageHandlerTests
     private readonly IOptions<DnsSettings> _dnsOptions = Options.Create(new DnsSettings
     {
         Domain = "example.com",
-        HomeHostname = "home"
+        ProxyRecordName = "home"
     });
     private readonly NullLogger<DnsMessageHandler> _logger = new();
 
@@ -35,7 +35,7 @@ public class DnsMessageHandlerTests
         var handler = CreateHandler();
         await handler.HandleServiceCreated(serviceName);
 
-        _dnsClientMock.Verify(x => x.AddCNAMERecord("example.com", hostName, "home"), Times.Once);
+        _dnsClientMock.Verify(x => x.AddCNAMERecord("myservice.example.com", "home.example.com"), Times.Once);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class DnsMessageHandlerTests
         var handler = CreateHandler();
         await handler.HandleServiceCreated(serviceName);
 
-        _dnsClientMock.Verify(x => x.AddCNAMERecord(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _dnsClientMock.Verify(x => x.AddCNAMERecord(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]

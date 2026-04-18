@@ -15,7 +15,7 @@ public class ScheduledIpCheckTests
     private readonly IOptions<DnsSettings> _dnsOptions = Options.Create(new DnsSettings
     {
         Domain = "example.com",
-        HomeHostname = "home"
+        ProxyRecordName = "home"
     });
     private readonly NullLogger<ScheduledIpCheck> _logger = new();
 
@@ -48,7 +48,7 @@ public class ScheduledIpCheckTests
 
         await Task.WhenAny(runTask, Task.Delay(2000));
 
-        _dnsClientMock.Verify(x => x.UpdateDNSRecord("example.com", "home", firstIp), Times.AtLeastOnce);
+        _dnsClientMock.Verify(x => x.UpdateDNSRecord("home", firstIp), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class ScheduledIpCheckTests
         await Task.WhenAny(runTask, Task.Delay(2000));
 
         // First call should update (from null -> IP), but no subsequent updates for same IP
-        _dnsClientMock.Verify(x => x.UpdateDNSRecord(It.IsAny<string>(), It.IsAny<string>(), sameIp), Times.Once);
+        _dnsClientMock.Verify(x => x.UpdateDNSRecord(It.IsAny<string>(), sameIp), Times.Once);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class ScheduledIpCheckTests
 
         await Task.WhenAny(runTask, Task.Delay(2000));
 
-        _dnsClientMock.Verify(x => x.UpdateDNSRecord("example.com", "home", ip), Times.Once);
+        _dnsClientMock.Verify(x => x.UpdateDNSRecord("home", ip), Times.Once);
     }
 
     [Fact]
@@ -120,6 +120,6 @@ public class ScheduledIpCheckTests
         // Should complete without throwing despite the IP lookup failure
         await Task.WhenAny(runTask, Task.Delay(2000));
 
-        _dnsClientMock.Verify(x => x.UpdateDNSRecord(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IPAddressInfo>()), Times.Never);
+        _dnsClientMock.Verify(x => x.UpdateDNSRecord(It.IsAny<string>(), It.IsAny<IPAddressInfo>()), Times.Never);
     }
 }

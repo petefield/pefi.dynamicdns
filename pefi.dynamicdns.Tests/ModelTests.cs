@@ -30,7 +30,7 @@ public class ModelTests
     {
         var settings = new DnsSettings();
         Assert.Equal("", settings.Domain);
-        Assert.Equal("", settings.HomeHostname);
+        Assert.Equal("", settings.ProxyRecordName);
     }
 
     [Fact]
@@ -43,9 +43,9 @@ public class ModelTests
     [Fact]
     public void DnsSettings_PropertiesAreAssignable()
     {
-        var settings = new DnsSettings { Domain = "example.com", HomeHostname = "home" };
+        var settings = new DnsSettings { Domain = "example.com", ProxyRecordName = "home" };
         Assert.Equal("example.com", settings.Domain);
-        Assert.Equal("home", settings.HomeHostname);
+        Assert.Equal("home", settings.ProxyRecordName);
     }
 
     [Fact]
