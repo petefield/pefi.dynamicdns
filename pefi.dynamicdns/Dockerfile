@@ -7,12 +7,11 @@ WORKDIR /app
 FROM  --platform=$BUILDPLATFORM  mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["pefi.dynamicdns.csproj", "pefi.dynamicdns/"]
+COPY ["pefi.dynamicdns/pefi.dynamicdns.csproj", "pefi.dynamicdns/"]
+COPY ["NuGet.config", "."]
 
-RUN --mount=type=secret,id=github_token,env=GITHUB_TOKEN dotnet nuget add source --username petefield --password $GITHUB_TOKEN --store-password-in-clear-text --name petefield "https://nuget.pkg.github.com/petefield/index.json"
-
-RUN dotnet restore "./pefi.dynamicdns/./pefi.dynamicdns.csproj"
-COPY . pefi.dynamicdns/
+RUN --mount=type=secret,id=github_token,env=GITHUB_TOKEN dotnet restore "./pefi.dynamicdns/./pefi.dynamicdns.csproj"
+COPY pefi.dynamicdns/ pefi.dynamicdns/
 WORKDIR "/src/pefi.dynamicdns"
 RUN dotnet build "./pefi.dynamicdns.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
