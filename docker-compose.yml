@@ -1,0 +1,7 @@
+services:
+  dynamicdns:
+    image: petefield/pefi:latest
+    container_name: pefi-dynamicdns
+    restart: unless-stopped
+    env_file:
+      - .env

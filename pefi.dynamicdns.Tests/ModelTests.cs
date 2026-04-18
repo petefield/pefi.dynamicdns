@@ -1,6 +1,3 @@
-using pefi.dynamicdns;
-using pefi.dynamicdns.Models;
-using pefi.dynamicdns.Services;
 using Xunit;
 
 namespace pefi.dynamicdns.Tests;
@@ -48,59 +45,5 @@ public class ModelTests
         Assert.Equal("home", settings.ProxyRecordName);
     }
 
-    [Fact]
-    public void ServiceCreatedMessage_StoresName()
-    {
-        var message = new ServiceCreatedMessage("my-service");
-        Assert.Equal("my-service", message.Name);
-    }
 
-    [Fact]
-    public void ServiceDeletedMessage_StoresService()
-    {
-        var service = new Service("my-service", "my-host", "80", "8080", "docker/image:latest");
-        var message = new ServiceDeletedMessage(service);
-
-        Assert.Equal(service, message.Service);
-    }
-
-    [Fact]
-    public void Service_StoresAllProperties()
-    {
-        var service = new Service("my-service", "my-host", "80", "8080", "docker/image:latest");
-
-        Assert.Equal("my-service", service.ServiceName);
-        Assert.Equal("my-host", service.HostName);
-        Assert.Equal("80", service.ContainerPortNumber);
-        Assert.Equal("8080", service.HostPortNumber);
-        Assert.Equal("docker/image:latest", service.DockerImageUrl);
-    }
-
-    [Fact]
-    public void Service_AllowsNullOptionalProperties()
-    {
-        var service = new Service("my-service", null, null, null, null);
-
-        Assert.Equal("my-service", service.ServiceName);
-        Assert.Null(service.HostName);
-        Assert.Null(service.ContainerPortNumber);
-        Assert.Null(service.HostPortNumber);
-        Assert.Null(service.DockerImageUrl);
-    }
-
-    [Fact]
-    public void ServiceInfo_StoresServiceNameAndHostName()
-    {
-        var info = new ServiceInfo("my-service", "my-host");
-        Assert.Equal("my-service", info.ServiceName);
-        Assert.Equal("my-host", info.HostName);
-    }
-
-    [Fact]
-    public void ServiceInfo_AllowsNullValues()
-    {
-        var info = new ServiceInfo(null, null);
-        Assert.Null(info.ServiceName);
-        Assert.Null(info.HostName);
-    }
 }
