@@ -11,9 +11,9 @@ namespace pefi
 
         public class MessagingConfig()
         {
-            public string Address { get; set; }
-            public string Username { get; set; }
-            public string Password { get; set; }
+            public string Address { get; set; } = "";
+            public string Username { get; set; } = "";
+            public string Password { get; set; } = "";
 
         }
         public static IServiceCollection AddPeFiMessaging(this IServiceCollection services, Action<MessagingConfig> configureOptions)
@@ -33,6 +33,7 @@ namespace pefi
             } );
 
         }
+        
         public static IServiceCollection AddPeFiMessaging(this IServiceCollection services, string address, string username, string password)
             => services.AddSingleton<IMessageBroker>(sp => new MessageBroker(address, username, password));
 

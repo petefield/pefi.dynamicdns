@@ -1,7 +1,7 @@
-﻿// See https://aka.ms/new-console-template for more information
-using dnsimple;
+﻿using dnsimple;
 using dnsimple.Services;
 using Microsoft.Extensions.Logging;
+using OneOf.Types;
 
 namespace pefi.dynamicdns.Infrastructure.DNSimple;
 
@@ -15,7 +15,9 @@ public class DNSimpleClient : IDNSClient
     public DNSimpleClient(string domain, string apiToken, ILogger<DNSimpleClient> logger)
     {
         client = new Client();
-        client.AddCredentials(new OAuth2Credentials(apiToken));
+        var credentials = new OAuth2Credentials(apiToken);
+        client.AddCredentials(credentials);
+        var response = client.Identity.Whoami();
         var account = client.Identity.Whoami().Data.Account;
         accountId = account.Id;
         var zone = client.Zones.ListZones(accountId).Data.Single(x => x.Name == domain);
@@ -23,41 +25,69 @@ public class DNSimpleClient : IDNSClient
         this.logger = logger;
     }
 
-    public void UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo)
+    public Result UpdateDNSRecord(string name, IPAddressInfo ipAddressInfo)
     {
-        var record = client.Zones.ListZoneRecords(accountId, zoneId).Data.Single(x => x.Name == recordName);
-
-        client.Zones.UpdateZoneRecord(accountId, zoneId, record.Id, new ZoneRecord
+        try
         {
-            Content = ipAddressInfo.Ip,
-        });
+            logger.LogInformation("Updating DNS record '{name}' to IP address '{ipAddress}'", name, ipAddressInfo.Ip);
+
+            var records = client.Zones.ListZoneRecords(accountId, zoneId).Data;
+
+            var record = records.Single(x => x.Name == name);
+
+            client.Zones.UpdateZoneRecord(accountId, zoneId, record.Id, new ZoneRecord
+            {
+                Content = ipAddressInfo.Ip,
+            });
+
+            return new Success();
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to update DNS record '{name}' to IP address '{ipAddress}'", name, ipAddressInfo.Ip);
+            return new Error();
+        }
     }
 
-    public void AddCNAMERecord(string domain, string host, string content)
+    public Result AddCNAMERecord(string name, string content)
     {
-        client.Zones.CreateZoneRecord(accountId, zoneId, new ZoneRecord()
+        try
         {
-            Content = $"{content}.{domain}",
-            Name = host,
-            Type = ZoneRecordType.CNAME
-        });
+            logger.LogInformation("Adding CNAME record '{name}' with content '{content}'", name, content);
+
+            client.Zones.CreateZoneRecord(accountId, zoneId, new ZoneRecord()
+            {
+                Content = content,
+                Name = name,
+                Type = "CNAME"
+            });
+
+            return new Success();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to add CNAME record '{name}' with content '{content}'", name, content);
+            return new Error();
+        }
     }
 
-    public void DeleteDnsRecord(string host)
+    public Result DeleteDnsRecord(string name)
     {
-        logger.LogInformation("Delete zone record :{host}", host);
+        logger.LogInformation("Delete zone record :{name}", name);
 
         try
         {
             var record = client.Zones.ListZoneRecords(accountId, zoneId)
-                .Data.Single(record => record.Name == host);
+                .Data.Single(record => record.Name == name);
 
             client.Zones.DeleteZoneRecord(accountId, zoneId, record.Id);
+            return new Success();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to delete zone record :{host}", host);
-            throw;
+            logger.LogError(ex, "Failed to delete zone record :{name}", name);
+            return new Error();
         }
 
 

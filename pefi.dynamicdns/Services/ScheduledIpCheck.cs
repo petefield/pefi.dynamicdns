@@ -24,7 +24,7 @@ public class ScheduledIpCheck(IDNSClient dnsClient, IOptions<DnsSettings> dnsOpt
                     var previousIPAddressValue = previousIPAddress?.Ip ?? "NOT SET";
 
                     logger.LogInformation("IP address changed from '{oldIpAddress}' to '{CurrentIpAddress}'", previousIPAddressValue, currentIPAddress.Ip);
-                    dnsClient.UpdateDNSRecord(dnsSettings.Domain, dnsSettings.HomeHostname, currentIPAddress);
+                    dnsClient.UpdateDNSRecord($"{dnsSettings.ProxyRecordName}", currentIPAddress);
                     previousIPAddress = currentIPAddress;
                 }
                 else

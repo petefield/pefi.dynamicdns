@@ -27,10 +27,8 @@ public class DnsMessageHandler(
             }
 
             logger.LogInformation("Update DNS {serviceName}", service.ServiceName);
-            logger.LogInformation("Adding CNAME '{serviceName}' to zone '{domain}' with content '{homeHostname}.{domain}'",
-                serviceName, _dnsSettings.Domain, _dnsSettings.HomeHostname, _dnsSettings.Domain);
 
-            dnsClient.AddCNAMERecord(_dnsSettings.Domain, service.HostName, _dnsSettings.HomeHostname);
+            dnsClient.AddCNAMERecord( $"{service.ServiceName}.{_dnsSettings.Domain}", $"{_dnsSettings.ProxyRecordName}.{_dnsSettings.Domain}");
         }
         catch (Exception ex)
         {

@@ -20,13 +20,13 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddHostedService<ScheduledIpCheck>();
-builder.Services.AddHostedService<EventListener>();
+//builder.Services.AddHostedService<EventListener>();
 
-var collectorUrl = builder.Configuration.GetSection("Observability").GetValue<string>("CollectorUrl") ?? "";
-builder.Services.AddPefiObservability(collectorUrl, t => t
-    .AddRabbitMQInstrumentation());
+// var collectorUrl = builder.Configuration.GetSection("Observability").GetValue<string>("CollectorUrl") ?? "";
+// builder.Services.AddPefiObservability(collectorUrl, t => t
+//     .AddRabbitMQInstrumentation());
 
-builder.Logging.AddPefiLogging();
+// builder.Logging.AddPefiLogging();
 
 builder.Services.AddHttpClient<ServiceManagerClient>((sp, c) => {
     var baseAddress = builder.Configuration.GetSection("ServiceManager").GetValue<string>("baseurl") ?? "";
@@ -42,13 +42,11 @@ builder.Services.AddHttpClient<IIpAddressLookup, IpAddressLookup>(client =>
 
 builder.Services.AddTransient<IDnsMessageHandler, DnsMessageHandler>();
 
-builder.Services.AddPeFiMessaging(options => {
-    options.Username = builder.Configuration.GetSection("Messaging").GetValue<string>("username") ?? "";
-    options.Password = builder.Configuration.GetSection("Messaging").GetValue<string>("password") ?? "";
-    options.Address = builder.Configuration.GetSection("Messaging").GetValue<string>("address") ?? "";
-});
-
-
+// builder.Services.AddPeFiMessaging(options => {
+//     options.Username = builder.Configuration.GetSection("Messaging").GetValue<string>("username") ?? "";
+//     options.Password = builder.Configuration.GetSection("Messaging").GetValue<string>("password") ?? "";
+//     options.Address = builder.Configuration.GetSection("Messaging").GetValue<string>("address") ?? "";
+// });
 
 
 builder.Services.Configure<DnsSettings>(builder.Configuration.GetSection("DNS"));

@@ -1,10 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
-namespace pefi.dynamicdns.Infrastructure
+﻿namespace pefi.dynamicdns.Infrastructure;
+
+public interface IDNSClient
 {
-    public interface IDNSClient
-    {
-        void AddCNAMERecord(string domain, string host, string content);
-        void UpdateDNSRecord(string domain, string recordName, IPAddressInfo ipAddressInfo);
-        void DeleteDnsRecord(string host);
-    }
+    Result AddCNAMERecord(string name, string content);
+    Result UpdateDNSRecord(string name, IPAddressInfo ipAddressInfo);
+    Result DeleteDnsRecord(string name);
 }
